@@ -13,6 +13,8 @@ import { Button } from "@/components/ui/button";
 import Background from "../components/Background";
 import { Transaction } from "@mysten/sui/transactions";
 import WaveBackground from "../components/Background";
+import { useObjectIds } from "@/components/data/ObjectIdContext";
+import { ObjectID } from "node_modules/@mysten/sui/dist/esm/transactions/data/internal";
 
 //FIXME this needs to. be linked to the current(last) PackageID!
 const PACKAGE_ID =
@@ -56,6 +58,8 @@ const glassClasses =
   "backdrop-blur-md supports-[backdrop-filter:blur(0px)]:bg-white/10";
 
 export default function DashboardPage() {
+  const { objectIds, addObjectId } = useObjectIds(); //allow to add ObjectIDs to database
+
   const account = useCurrentAccount();
   const { mutateAsync: signAndExecuteTransactionBlock } =
     useSignAndExecuteTransaction();
@@ -130,12 +134,30 @@ export default function DashboardPage() {
               digest: tx.digest,
               options: {
                 showEvents: true,
+                showEffects: true
               },
             });
 
+            //print the event
             if (result.events?.length) {
               result.events.forEach((event, idx) => {
                 console.log(`Event # ${idx + 1}:`, event);
+              });
+            }
+
+            //print the object ID #TODO add objectID to. an array #TODO2 create different arrays based on emojy?
+            if (result.effects?.created?.length) {
+              result.effects.created.forEach((created, idx) => {
+                const objectId = created.reference.objectId
+                console.log(`Created object #${idx + 1}:`, objectId); //log the objectID to console //FIXME REMOVE THIS PRIVACY
+                addObjectId(objectId)
+
+                //check list of ObjectIDs
+                console.log("[DEBUG] Current objectIds array after add:", [
+                  ...objectIds,
+                  objectId,
+                ]);
+
               });
             }
 

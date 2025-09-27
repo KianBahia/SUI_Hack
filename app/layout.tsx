@@ -2,6 +2,7 @@ import "@mysten/dapp-kit/dist/index.css";
 import "./globals.css";
 import { Providers } from "./providers";
 import Navbar from "./components/Navbar";
+import { ObjectIdProvider } from "@/components/data/ObjectIdContext"; //this is where the PUBLIC posts will be stored
 
 export default function RootLayout({
   children,
@@ -20,8 +21,11 @@ export default function RootLayout({
       {/* Ensure light background and readable text */}
       <body className="bg-white text-gray-900 antialiased">
         <Providers>
-          <Navbar />
-          {children}
+          {/* Wrap everything in ObjectIdProvider */}
+          <ObjectIdProvider>
+            <Navbar />
+            {children}
+          </ObjectIdProvider>
         </Providers>
       </body>
     </html>
