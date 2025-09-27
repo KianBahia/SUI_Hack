@@ -178,7 +178,7 @@ export default function DashboardPage() {
                     onChange={(e) => setMessage(e.target.value)}
                     rows={7}
                     maxLength={600}
-                    className="mt-2 w-full rounded-xl border border-white/20 bg-white/5 p-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 backdrop-blur-sm"
+                    className="mt-2 w-full rounded-xl border border-grey/40 bg-white/5 p-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 backdrop-blur-sm"
                     placeholder="Write a short note about your current mood..."
                     aria-describedby="message-hint"
                   />
@@ -204,7 +204,7 @@ export default function DashboardPage() {
                     onChange={(e) =>
                       setVisibility(e.target.value as Visibility)
                     }
-                    className="mt-2 w-full rounded-xl border border-white/20 bg-white/5 p-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 backdrop-blur-sm"
+                    className="mt-2 w-full rounded-xl border border-grey/40 bg-white/5 p-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 backdrop-blur-sm"
                   >
                     <option value="private">Private (encrypted)</option>
                     <option value="public">Public (on-chain, anonymous)</option>

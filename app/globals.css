@@ -64,3 +64,10 @@
 @media (prefers-reduced-transparency: reduce) {
   .glass-reduce { backdrop-filter: none !important; background-color: rgba(255,255,255,0.92) !important; }
 }
+
+@keyframes flow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
