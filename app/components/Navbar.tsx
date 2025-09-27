@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { ConnectButton } from "@mysten/dapp-kit";
 import {
   NavigationMenu,
@@ -10,35 +11,36 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger,
-  navigationMenuTriggerStyle,
 } from "./ui/navigation-menu";
 
-/**
- * Glassy, rounded, semi-transparent header that sits "over" the page.
- * Keeps wallet button on the right. No logic changes.
- */
 export default function Navbar() {
   return (
     <div className="fixed inset-x-0 top-0 z-40">
       <div className="mx-auto w-full max-w-[1280px] px-3">
-        <div className="mt-3 rounded-3xl bg-white/50 backdrop-blur-md border border-white/40 shadow-sm">
-          <NavigationMenu className="max-w-full justify-between">
-            <NavigationMenuList className="flex w-full justify-between items-center px-3 py-2">
-              {/* Brand */}
-              <div className="flex items-center gap-6">
+        <div className="mt-3 rounded-3xl bg-white/50 backdrop-blur-md border border-white/40 shadow-sm px-6">
+          <NavigationMenu className="max-w-full">
+            {/* flex container for left + right */}
+            <NavigationMenuList className="flex w-full items-center justify-between py-2 !justify-between">
+              {/* Left side: logo + menu */}
+              <div className="flex items-center gap-4">
                 <NavigationMenuItem>
                   <NavigationMenuLink asChild>
                     <Link
                       href="/"
-                      className="flex items-center space-x-2 text-lg font-semibold text-gray-900 transition-transform duration-200 hover:scale-[1.02]"
+                      className="flex items-center gap-2 text-lg font-semibold"
                     >
+                      <Image
+                        src="/favicon.svg"
+                        alt="Feelings Logo"
+                        width={24}
+                        height={24}
+                      />
                       <span>Feelings</span>
                     </Link>
                   </NavigationMenuLink>
                 </NavigationMenuItem>
 
-                {/* Simple menu, retains project patterns */}
-                <NavigationMenuItem className="hidden md:block">
+                <NavigationMenuItem>
                   <NavigationMenuTrigger className="text-gray-900">
                     Menu
                   </NavigationMenuTrigger>
@@ -62,25 +64,12 @@ export default function Navbar() {
                     </ul>
                   </NavigationMenuContent>
                 </NavigationMenuItem>
-
-                <NavigationMenuItem className="hidden md:block">
-                  <NavigationMenuLink
-                    asChild
-                    className={navigationMenuTriggerStyle()}
-                  >
-                    <Link href="/" className="text-gray-900">
-                      Home
-                    </Link>
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
               </div>
 
-              {/* Wallet on the far right */}
-              <NavigationMenuItem className="ml-auto">
-                <div className="flex items-center gap-2 pr-1">
-                  <ConnectButton />
-                </div>
-              </NavigationMenuItem>
+              {/* Right side: wallet button */}
+              <div className="flex items-center gap-20 pl-210 ml-auto">
+                <ConnectButton />
+              </div>
             </NavigationMenuList>
           </NavigationMenu>
         </div>
