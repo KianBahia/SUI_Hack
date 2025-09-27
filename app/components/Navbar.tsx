@@ -13,103 +13,78 @@ import {
   navigationMenuTriggerStyle,
 } from "./ui/navigation-menu";
 
-const components: { title: string; href: string; description: string }[] = [
-  {
-    title: "Counter",
-    href: "/counter",
-    description: "View and interact with the counter component.",
-  },
-  {
-    title: "Create Counter",
-    href: "/create",
-    description: "Create a new counter instance on the blockchain.",
-  },
-  {
-    title: "About",
-    href: "/about",
-    description: "Learn more about this counter application.",
-  },
-];
-
+/**
+ * Glassy, rounded, semi-transparent header that sits "over" the page.
+ * Keeps wallet button on the right. No logic changes.
+ */
 export default function Navbar() {
   return (
-    <NavigationMenu className="max-w-full justify-between p-4 bg-white border-b border-gray-200">
-      <NavigationMenuList className="flex w-full justify-between items-center">
-        <div className="flex items-center space-x-6">
-          <NavigationMenuItem>
-            <NavigationMenuLink asChild>
-              <Link href="/" className="flex items-center space-x-2 font-semibold text-lg text-gray-900">
-                Counter App
-              </Link>
-            </NavigationMenuLink>
-          </NavigationMenuItem>
-          
-          <NavigationMenuItem>
-            <NavigationMenuTrigger className="text-gray-900">Features</NavigationMenuTrigger>
-            <NavigationMenuContent>
-              <ul className="grid gap-3 p-6 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr] bg-white">
-                <li className="row-span-3">
+    <div className="fixed inset-x-0 top-0 z-40">
+      <div className="mx-auto w-full max-w-[1280px] px-3">
+        <div className="mt-3 rounded-3xl bg-white/50 backdrop-blur-md border border-white/40 shadow-sm">
+          <NavigationMenu className="max-w-full justify-between">
+            <NavigationMenuList className="flex w-full justify-between items-center px-3 py-2">
+              {/* Brand */}
+              <div className="flex items-center gap-6">
+                <NavigationMenuItem>
                   <NavigationMenuLink asChild>
                     <Link
-                      className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-slate-50 to-slate-100 p-6 no-underline outline-none focus:shadow-md"
                       href="/"
+                      className="flex items-center space-x-2 text-lg font-semibold text-gray-900 transition-transform duration-200 hover:scale-[1.02]"
                     >
-                      <div className="mb-2 mt-4 text-lg font-medium text-gray-900">
-                        Counter App
-                      </div>
-                      <p className="text-sm leading-tight text-slate-600">
-                        A beautiful counter application built with Next.js and Tailwind CSS.
-                      </p>
+                      <span>Feelings</span>
                     </Link>
                   </NavigationMenuLink>
-                </li>
-                {components.map((component) => (
-                  <ListItem
-                    key={component.title}
-                    title={component.title}
-                    href={component.href}
+                </NavigationMenuItem>
+
+                {/* Simple menu, retains project patterns */}
+                <NavigationMenuItem className="hidden md:block">
+                  <NavigationMenuTrigger className="text-gray-900">
+                    Menu
+                  </NavigationMenuTrigger>
+                  <NavigationMenuContent>
+                    <ul className="grid gap-3 p-6 md:w-[400px] bg-white">
+                      <li>
+                        <NavigationMenuLink asChild>
+                          <Link
+                            className="block rounded-md p-3 no-underline hover:bg-slate-100 focus:bg-slate-100"
+                            href="/"
+                          >
+                            <div className="text-sm font-medium text-gray-900">
+                              Home
+                            </div>
+                            <p className="text-sm text-slate-600">
+                              Landing page
+                            </p>
+                          </Link>
+                        </NavigationMenuLink>
+                      </li>
+                    </ul>
+                  </NavigationMenuContent>
+                </NavigationMenuItem>
+
+                <NavigationMenuItem className="hidden md:block">
+                  <NavigationMenuLink
+                    asChild
+                    className={navigationMenuTriggerStyle()}
                   >
-                    {component.description}
-                  </ListItem>
-                ))}
-              </ul>
-            </NavigationMenuContent>
-          </NavigationMenuItem>
+                    <Link href="/" className="text-gray-900">
+                      Home
+                    </Link>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+              </div>
 
-          <NavigationMenuItem>
-            <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-              <Link href="/" className="text-gray-900">Home</Link>
-            </NavigationMenuLink>
-          </NavigationMenuItem>
+              {/* Wallet on the far right */}
+              <NavigationMenuItem className="ml-auto">
+                <div className="flex items-center gap-2 pr-1">
+                  <ConnectButton />
+                </div>
+              </NavigationMenuItem>
+            </NavigationMenuList>
+          </NavigationMenu>
         </div>
-
-        <NavigationMenuItem className="flex ml-auto">
-          <ConnectButton />
-        </NavigationMenuItem>
-      </NavigationMenuList>
-    </NavigationMenu>
+      </div>
+    </div>
   );
 }
-
-const ListItem = React.forwardRef<
-  React.ElementRef<"a">,
-  React.ComponentPropsWithoutRef<"a">
->(({ className, title, children, ...props }, ref) => {
-  return (
-    <li>
-      <NavigationMenuLink asChild>
-        <a
-          ref={ref}
-          className={`block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-slate-100 hover:text-slate-900 focus:bg-slate-100 focus:text-slate-900 ${className}`}
-          {...props}
-        >
-          <div className="text-sm font-medium leading-none text-gray-900">{title}</div>
-          <p className="line-clamp-2 text-sm leading-snug text-slate-600">
-            {children}
-          </p>
-        </a>
-      </NavigationMenuLink>
-    </li>
-  );
-});
-ListItem.displayName = "ListItem";
