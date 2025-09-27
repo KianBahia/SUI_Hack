@@ -110,3 +110,5 @@ temp/
 
 # Turbo
 .turbo
+
+exports.sh
