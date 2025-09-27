@@ -1,14 +1,9 @@
 "use client";
-
 import { useRef, useEffect } from "react";
 
-/**
- * Subtle two-wave animated background anchored to bottom 35vh of viewport.
- * Colors tuned for calming Sui-like tones.
- */
 const COLORS = [
-  "rgba(56, 189, 248, 0.25)", // soft sky blue
-  "rgba(14, 165, 233, 0.18)", // deeper blue
+  "rgba(56, 189, 248, 0.25)",
+  "rgba(14, 165, 233, 0.18)",
 ];
 
 export default function WaveBackground() {
@@ -88,7 +83,6 @@ export default function WaveBackground() {
   return (
     <canvas
       ref={canvasRef}
-      // z-0 keeps canvas above page background; hero uses z-10 to stay on top.
       className="pointer-events-none z-0"
       style={{
         position: "fixed",
