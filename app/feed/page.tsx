@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useCurrentAccount, ConnectButton } from "@mysten/dapp-kit";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import WaveBackground from "../components/Background";
@@ -23,6 +23,36 @@ const Backdrop = () => (
   />
 );
 
+const EMOJIS = [
+  "😀",
+  "🙂",
+  "😐",
+  "😕",
+  "😢",
+  "😡",
+  "😴",
+  "🤒",
+  "🤯",
+  "🧘",
+  "❤️",
+  "💀",
+];
+
+const EMOJI_LABELS: Record<string, string> = {
+  "😀": "Happy",
+  "🙂": "Content",
+  "😐": "Neutral",
+  "😕": "Confused",
+  "😢": "Sad",
+  "😡": "Angry",
+  "😴": "Tired",
+  "🤒": "Sick",
+  "🤯": "Stressed",
+  "🧘": "Calm",
+  "❤️": "In love",
+  "💀": "Suicidal",
+};
+
 export default function FeedPage() {
   const account = useCurrentAccount();
   const [mounted, setMounted] = useState(false);
@@ -31,6 +61,8 @@ export default function FeedPage() {
   const [posts, setPosts] = useState<
     { id: number; emoji: string; message: string; visibility: string }[]
   >([]);
+
+  const [filterEmoji, setFilterEmoji] = useState<string>("");
 
   useEffect(() => {
     setMounted(true);
@@ -57,6 +89,11 @@ export default function FeedPage() {
       },
     ]);
   }, []);
+
+  const filteredPosts = useMemo(() => {
+    if (!filterEmoji) return posts;
+    return posts.filter((post) => post.emoji === filterEmoji);
+  }, [filterEmoji, posts]);
 
   if (!mounted) return null;
 
@@ -118,8 +155,26 @@ export default function FeedPage() {
           </p>
         </header>
 
+        {/* Emoji Filter */}
+        <div className={glassClasses + " p-4 flex items-center gap-3"}>
+          <label className="text-sm font-medium">Filter by mood:</label>
+          <select
+            className="rounded-xl border border-gray-300 bg-white/20 p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 backdrop-blur-sm text-black"
+            value={filterEmoji}
+            onChange={(e) => setFilterEmoji(e.target.value)}
+          >
+            <option value="">All</option>
+            {EMOJIS.map((e) => (
+              <option key={e} value={e}>
+                {e} {EMOJI_LABELS[e]}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Posts */}
         <div className="space-y-4">
-          {posts.map((post) => (
+          {filteredPosts.map((post) => (
             <Card
               key={post.id}
               className="bg-transparent border-0 shadow-none p-0"

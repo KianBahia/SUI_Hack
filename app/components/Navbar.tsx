@@ -65,39 +65,36 @@ export default function Navbar() {
                     </Link>
                   </NavigationMenuLink>
                 </NavigationMenuItem>
-
-                {/* Add more direct links here as needed */}
-                <NavigationMenuItem>
-                  <NavigationMenuLink asChild>
-                    <Link
-                      href="/about"
-                      className={
-                        buttonVariants({
-                          variant: "glass",
-                          size: "sm",
-                        }) + " px-3 py-1.5 text-gray-900"
-                      }
-                    >
-                      About
-                    </Link>
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
               </NavigationMenuList>
             </NavigationMenu>
 
-            {/* RIGHT: Connect wallet */}
-            <div
-              className={
-                "rounded-xl border border-white/20 bg-white/10 shadow backdrop-blur-md " +
-                "transition-colors duration-200 hover:bg-blue-400/20 px-3 py-1.5 " +
-                " [&_*]:!bg-transparent [&_*]:!shadow-none [&_*]:!ring-0 [&_*]:!border-0 " +
-                " [&_*]:!m-0 [&_*]:!p-0 [&_*]:!outline-none [&_*]:!rounded-[inherit] " +
-                " [&>button]:!bg-transparent [&>button]:!shadow-none [&>button]:!ring-0 [&>button]:!border-0 " +
-                " [&>button]:!h-auto [&>button]:!w-auto [&>button]:!rounded-[inherit] " +
-                " [&_*]:!text-inherit [&_*]:!font-medium"
-              }
-            >
-              <ConnectButton />
+            {/* RIGHT: About + Connect wallet */}
+            <div className="flex items-center gap-3">
+              <Link
+                href="/about"
+                className={
+                  buttonVariants({
+                    variant: "glass",
+                    size: "sm",
+                  }) + " px-3 py-1.5 text-gray-900"
+                }
+              >
+                About
+              </Link>
+
+              <div
+                className={
+                  "rounded-xl border border-white/20 bg-white/10 shadow backdrop-blur-md " +
+                  "transition-colors duration-200 hover:bg-blue-400/20 px-3 py-1.5 " +
+                  " [&_*]:!bg-transparent [&_*]:!shadow-none [&_*]:!ring-0 [&_*]:!border-0 " +
+                  " [&_*]:!m-0 [&_*]:!p-0 [&_*]:!outline-none [&_*]:!rounded-[inherit] " +
+                  " [&>button]:!bg-transparent [&>button]:!shadow-none [&>button]:!ring-0 [&>button]:!border-0 " +
+                  " [&>button]:!h-auto [&>button]:!w-auto [&>button]:!rounded-[inherit] " +
+                  " [&_*]:!text-inherit [&_*]:!font-medium"
+                }
+              >
+                <ConnectButton />
+              </div>
             </div>
           </div>
         </div>
