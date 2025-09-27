@@ -49,6 +49,23 @@ export default function Navbar() {
                   </NavigationMenuLink>
                 </NavigationMenuItem>
 
+                {/* Posts link */}
+                <NavigationMenuItem>
+                  <NavigationMenuLink asChild>
+                    <Link
+                      href="/"
+                      className={
+                        buttonVariants({
+                          variant: "glass",
+                          size: "sm",
+                        }) + " px-3 py-1.5 text-gray-900"
+                      }
+                    >
+                      Posts
+                    </Link>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+
                 {/* Community link */}
                 <NavigationMenuItem>
                   <NavigationMenuLink asChild>
