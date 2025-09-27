@@ -32,9 +32,9 @@ const EMOJIS = [
   "😴",
   "🤒",
   "🤯",
+  "🤪",
   "🧘",
   "❤️",
-  "💀",
 ];
 
 const EMOJI_LABELS: Record<string, string> = {
@@ -47,9 +47,9 @@ const EMOJI_LABELS: Record<string, string> = {
   "😴": "Tired",
   "🤒": "Sick",
   "🤯": "Stressed",
+  "🤪": "Crazy",
   "🧘": "Calm",
   "❤️": "In love",
-  "💀": "Suicidal",
 };
 
 // ✅ connect to Sui testnet
