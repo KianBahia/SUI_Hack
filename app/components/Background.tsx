@@ -1,9 +1,14 @@
 "use client";
+
 import { useRef, useEffect } from "react";
 
+/**
+ * Subtle two-wave animated background anchored to bottom 35vh of viewport.
+ * Colors tuned for calming Sui-like tones.
+ */
 const COLORS = [
-  "rgba(56, 189, 248, 0.25)",
-  "rgba(14, 165, 233, 0.18)",
+  "rgba(56, 189, 248, 0.25)", // soft sky blue
+  "rgba(14, 165, 233, 0.18)", // deeper blue
 ];
 
 export default function WaveBackground() {
