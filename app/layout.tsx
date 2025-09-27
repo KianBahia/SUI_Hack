@@ -9,14 +9,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark">
+    // Remove forced dark mode which set near-black background
+    <html lang="en">
       <head>
         <meta charSet="UTF-8" />
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Sui dApp Starter</title>
       </head>
-      <body>
+      {/* Ensure light background and readable text */}
+      <body className="bg-white text-gray-900 antialiased">
         <Providers>
           <Navbar />
           {children}
