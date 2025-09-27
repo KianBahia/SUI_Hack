@@ -1,22 +1,3 @@
 import App from "./App";
 
-export default function Home() {
-  return (
-    <div className="bg-slate-50 min-h-screen">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-slate-900 mb-4">
-            Welcome to Counter App
-          </h1>
-          <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-            A beautiful and modern counter application built with Next.js, Tailwind CSS, and shadcn/ui components.
-          </p>
-        </div>
-        
-        <div className="flex justify-center">
-          <App />
-        </div>
-      </div>
-    </div>
-  );
-}
+"use client"; import { useEffect, useRef, useState } from "react"; import { useCurrentAccount, ConnectButton } from "@mysten/dapp-kit"; import { useRouter } from "next/navigation"; import Background from "./components/Background"; export default function Home() { const account = useCurrentAccount(); const router = useRouter(); const [mounted, setMounted] = useState(false); const didRedirect = useRef(false); useEffect(() => { setMounted(true); }, []); useEffect(() => { if (!mounted) return; if (didRedirect.current) return; if (account) { didRedirect.current = true; router.replace("/dashboard"); } }, [mounted, account, router]); return ( <main className="relative min-h-[calc(100vh-64px)] flex items-center justify-center px-6"> <Background /> <section aria-labelledby="hero-title" className="relative z-10 max-w-3xl w-full text-center space-y-8" > <h1 id="hero-title" className="text-4xl md:text-6xl font-extrabold tracking-tight text-gray-900" > Track your feelings </h1> <p className="mx-auto max-w-2xl text-base md:text-lg text-gray-700"> A private mood journal on Sui. Publish encrypted entries and share access securely with your therapist. </p> {/* Glass-styled Connect button */} <div className=" rounded-xl border border-white/20 bg-white/10 shadow backdrop-blur-md transition-colors duration-200 hover:bg-blue-400/20 px-4 py-2 inline-block [&>button]:!bg-transparent [&>button]:!border-0 [&>button]:!shadow-none [&>button]:!ring-0 [&>button]:!m-0 [&>button]:!p-0 [&>button]:!h-auto [&>button]:!w-auto [&>button]:!rounded-[inherit] [&>button]:!text-inherit [&>button]:!font-medium " > <ConnectButton /> </div> <p className="text-xs text-gray-600"> Uses the Sui Wallet Standard. You control your keys. </p> </section> </main> ); }

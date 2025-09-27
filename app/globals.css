@@ -56,3 +56,18 @@
     color: hsl(var(--foreground));
   }
 }
+
+/* Liquid-glass fallbacks */
+@supports not (backdrop-filter: blur(1px)) {
+  .no-backdrop-bg { background-color: rgba(255,255,255,0.9) !important; }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .glass-reduce { backdrop-filter: none !important; background-color: rgba(255,255,255,0.92) !important; }
+}
+
+@keyframes flow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
