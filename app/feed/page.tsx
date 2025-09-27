@@ -4,21 +4,20 @@ import { useEffect, useState, useMemo } from "react";
 import { useCurrentAccount, ConnectButton } from "@mysten/dapp-kit";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import WaveBackground from "../components/Background";
+import { SuiClient, getFullnodeUrl } from "@mysten/sui/client";
 
-// simple header-like glass classes (reuse from dashboard)
+// Glassy card styling
 const glassClasses =
-  "rounded-2xl border border-white/20 bg-white/10 shadow-xl " +
-  "backdrop-blur-md supports-[backdrop-filter:blur(0px)]:bg-white/10";
+  "rounded-2xl border border-white/20 bg-white/10 shadow-xl backdrop-blur-md supports-[backdrop-filter:blur(0px)]:bg-white/10";
 
-// Blue + pink backdrop (same as dashboard)
+// Blue + pink backdrop
 const Backdrop = () => (
   <div
     aria-hidden
     className="fixed inset-0 -z-10"
     style={{
       background:
-        "radial-gradient(40rem 40rem at 15% 10%, #60a5fa55 0%, transparent 60%),\
-         radial-gradient(32rem 32rem at 85% 15%, #f472b655 0%, transparent 65%)",
+        "radial-gradient(40rem 40rem at 15% 10%, #60a5fa55 0%, transparent 60%), radial-gradient(32rem 32rem at 85% 15%, #f472b655 0%, transparent 65%)",
     }}
   />
 );
@@ -53,41 +52,86 @@ const EMOJI_LABELS: Record<string, string> = {
   "💀": "Suicidal",
 };
 
+// ✅ connect to Sui testnet
+const client = new SuiClient({ url: getFullnodeUrl("testnet") });
+
 export default function FeedPage() {
   const account = useCurrentAccount();
   const [mounted, setMounted] = useState(false);
-
-  // Fake posts for now
   const [posts, setPosts] = useState<
-    { id: number; emoji: string; message: string; visibility: string }[]
+    { id: string; emoji: string; message: string; visibility: string }[]
   >([]);
-
   const [filterEmoji, setFilterEmoji] = useState<string>("");
 
   useEffect(() => {
     setMounted(true);
 
-    // placeholder posts — later replace with on-chain fetch
-    setPosts([
-      {
-        id: 1,
-        emoji: "😀",
-        message: "Feeling great today, sunshine vibes!",
-        visibility: "public",
-      },
-      {
-        id: 2,
-        emoji: "😢",
-        message: "It’s been a rough day, but tomorrow will be better.",
-        visibility: "public",
-      },
-      {
-        id: 3,
-        emoji: "🤯",
-        message: "Overloaded with work but pushing through 💪",
-        visibility: "public",
-      },
-    ]);
+    const fetchPosts = async () => {
+      const objectIds = [
+        // ✅ add all object IDs you want to display
+        "0xf89673a611d38f8ed38441106ac81c9339f109d420f93a3747676c5a6c3d96ea",
+      ];
+
+      try {
+        const results = await Promise.all(
+          objectIds.map((id) =>
+            client.getObject({
+              id,
+              options: { showContent: true },
+            }),
+          ),
+        );
+
+        const parsedPosts = results
+          .map((object, i) => {
+            if (
+              object.data?.content &&
+              "dataType" in object.data.content &&
+              object.data.content.dataType === "moveObject"
+            ) {
+              const fields = object.data.content.fields as {
+                content?: string;
+              };
+
+              if (fields.content) {
+                try {
+                  const parsed = JSON.parse(fields.content);
+                  return {
+                    id: objectIds[i],
+                    emoji: parsed.emoji ?? "😐",
+                    message: parsed.message ?? "",
+                    visibility: parsed.visibility ?? "public",
+                  };
+                } catch (e) {
+                  console.warn(
+                    "Invalid JSON for",
+                    objectIds[i],
+                    fields.content,
+                  );
+                  return null;
+                }
+              }
+            }
+            return null;
+          })
+          .filter(
+            (
+              p,
+            ): p is {
+              id: string;
+              emoji: string;
+              message: string;
+              visibility: string;
+            } => p !== null,
+          );
+
+        setPosts(parsedPosts);
+      } catch (err) {
+        console.error("Failed to fetch posts:", err);
+      }
+    };
+
+    fetchPosts();
   }, []);
 
   const filteredPosts = useMemo(() => {
@@ -97,6 +141,7 @@ export default function FeedPage() {
 
   if (!mounted) return null;
 
+  // Show connect wallet screen
   if (!account) {
     return (
       <main className="relative mx-auto max-w-2xl px-6 pt-32 pb-20">
@@ -105,7 +150,7 @@ export default function FeedPage() {
         <div className="relative z-10">
           <Card className="bg-transparent border-0 shadow-none p-0">
             <div
-              className={glassClasses + " p-4"}
+              className={glassClasses + " p-4 text-black"}
               style={{
                 backdropFilter: "blur(12px) saturate(1.25)",
                 WebkitBackdropFilter: "blur(12px) saturate(1.25)",
@@ -119,17 +164,7 @@ export default function FeedPage() {
               <CardContent className="space-y-4">
                 <p>See what others are feeling and sharing publicly.</p>
                 <div className="flex">
-                  <div
-                    className={
-                      "rounded-xl border border-white/20 bg-white/10 shadow backdrop-blur-md " +
-                      "transition-colors duration-200 hover:bg-blue-400/20 px-3 py-1.5 " +
-                      " [&_*]:!bg-transparent [&_*]:!shadow-none [&_*]:!ring-0 [&_*]:!border-0 " +
-                      " [&_*]:!m-0 [&_*]:!p-0 [&_*]:!outline-none [&_*]:!rounded-[inherit] " +
-                      " [&>button]:!bg-transparent [&>button]:!shadow-none [&>button]:!ring-0 [&>button]:!border-0 " +
-                      " [&>button]:!h-auto [&>button]:!w-auto [&>button]:!rounded-[inherit] " +
-                      " [&_*]:!text-inherit [&_*]:!font-medium"
-                    }
-                  >
+                  <div className="rounded-xl border border-white/20 bg-white/10 shadow backdrop-blur-md transition-colors duration-200 hover:bg-blue-400/20 px-3 py-1.5 text-black">
                     <ConnectButton />
                   </div>
                 </div>
@@ -141,6 +176,7 @@ export default function FeedPage() {
     );
   }
 
+  // Show feed
   return (
     <main className="relative mx-auto w-full max-w-4xl px-6 pt-28 pb-12">
       <Backdrop />
@@ -156,7 +192,9 @@ export default function FeedPage() {
         </header>
 
         {/* Emoji Filter */}
-        <div className={glassClasses + " p-4 flex items-center gap-3"}>
+        <div
+          className={glassClasses + " p-4 flex items-center gap-3 text-black"}
+        >
           <label className="text-sm font-medium">Filter by mood:</label>
           <select
             className="rounded-xl border border-gray-300 bg-white/20 p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 backdrop-blur-sm text-black"
@@ -180,7 +218,7 @@ export default function FeedPage() {
               className="bg-transparent border-0 shadow-none p-0"
             >
               <div
-                className={glassClasses + " p-4"}
+                className={glassClasses + " p-4 text-black"}
                 style={{
                   backdropFilter: "blur(12px) saturate(1.25)",
                   WebkitBackdropFilter: "blur(12px) saturate(1.25)",

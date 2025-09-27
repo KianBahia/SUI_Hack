@@ -1,7 +1,12 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useCurrentAccount, ConnectButton, useSignAndExecuteTransaction, useSuiClient} from "@mysten/dapp-kit";
+import {
+  useCurrentAccount,
+  ConnectButton,
+  useSignAndExecuteTransaction,
+  useSuiClient,
+} from "@mysten/dapp-kit";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { TransactionBlock } from "@mysten/sui.js/transactions";
 import { Button } from "@/components/ui/button";
@@ -10,7 +15,8 @@ import { Transaction } from "@mysten/sui/transactions";
 import WaveBackground from "../components/Background";
 
 //FIXME this needs to. be linked to the current(last) PackageID!
-const PACKAGE_ID = "0xa68d4253a03fb858b97ca8b0e0cb6383d2394a549a9b3cf9b1bbb7f1a1b936ae"; // Replace with your actual package id
+const PACKAGE_ID =
+  "0xa68d4253a03fb858b97ca8b0e0cb6383d2394a549a9b3cf9b1bbb7f1a1b936ae"; // Replace with your actual package id
 
 type Visibility = "public" | "private";
 
@@ -51,7 +57,8 @@ const glassClasses =
 
 export default function DashboardPage() {
   const account = useCurrentAccount();
-  const { mutateAsync: signAndExecuteTransactionBlock } = useSignAndExecuteTransaction();
+  const { mutateAsync: signAndExecuteTransactionBlock } =
+    useSignAndExecuteTransaction();
   const [mounted, setMounted] = useState(false);
 
   const suiClient = useSuiClient();
@@ -80,7 +87,7 @@ export default function DashboardPage() {
     if (!emoji) return setError("Pick a mood emoji.");
     if (!message.trim()) return setError("Write a short message.");
     if (message.trim().length > 500)
-    return setError("Message must be 500 characters or fewer.");
+      return setError("Message must be 500 characters or fewer.");
 
     //create body to submit
     const body = message.trim();
@@ -123,29 +130,32 @@ export default function DashboardPage() {
               digest: tx.digest,
               options: {
                 showEvents: true,
-              }
+              },
             });
 
             if (result.events?.length) {
               result.events.forEach((event, idx) => {
-                console.log(`Event # ${idx + 1}:`, event)
-              })
+                console.log(`Event # ${idx + 1}:`, event);
+              });
             }
 
-            console.log("Transaction successful with digest:", result.digest.toString());
-            console.log("Message in Node: ", contentString) //TODO REMOVE THIS FROM CONSOLE (PRIVACY)
+            console.log(
+              "Transaction successful with digest:",
+              result.digest.toString(),
+            );
+            console.log("Message in Node: ", contentString); //TODO REMOVE THIS FROM CONSOLE (PRIVACY)
             setInfo("Your note was successfully published on-chain!");
 
             // Reset form state only after a successful transaction
             setMessage("");
             setEmoji("");
             setVisibility("private");
-          }
-        }
-      )
+          },
+        },
+      );
     } catch (e) {
       console.error(e);
-      setError("Failed to publish entry."); 
+      setError("Failed to publish entry.");
     } finally {
       setSubmitting(false);
     }
@@ -182,13 +192,13 @@ export default function DashboardPage() {
                 <CardTitle className="text-2xl">
                   Connect your wallet to continue
                 </CardTitle>
-            </CardHeader>
+              </CardHeader>
               <CardContent className="space-y-4">
-              <p>Track your feelings privately on Sui.</p>
+                <p>Track your feelings privately on Sui.</p>
                 <div className="flex">
                   <ConnectButton />
                 </div>
-            </CardContent>
+              </CardContent>
             </div>
           </Card>
         </div>
@@ -221,17 +231,17 @@ export default function DashboardPage() {
               }}
             >
               <CardHeader className="pb-2">
-              <CardTitle className="text-lg">Your note</CardTitle>
-            </CardHeader>
+                <CardTitle className="text-lg">Your note</CardTitle>
+              </CardHeader>
               <CardContent className="space-y-6">
-              <div>
+                <div>
                   <label
                     htmlFor="message"
                     className="block text-sm font-medium"
                   >
                     How are you feeling?
                   </label>
-                <textarea
+                  <textarea
                     id="message"
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
@@ -240,24 +250,24 @@ export default function DashboardPage() {
                     className="mt-2 w-full rounded-xl border border-grey/40 bg-white/5 p-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 backdrop-blur-sm"
                     placeholder="Write a short note about your current mood..."
                     aria-describedby="message-hint"
-                />
+                  />
                   <div
                     id="message-hint"
                     className="mt-1 flex justify-between text-xs"
                   >
-                  <span>Limit for publishing: 500. Hard cap 600.</span>
-                  <span aria-live="polite">{messageChars}/500</span>
+                    <span>Limit for publishing: 500. Hard cap 600.</span>
+                    <span aria-live="polite">{messageChars}/500</span>
+                  </div>
                 </div>
-              </div>
 
-              <div>
+                <div>
                   <label
                     htmlFor="visibility"
                     className="block text-sm font-medium"
                   >
                     Visibility
                   </label>
-                <select
+                  <select
                     id="visibility"
                     value={visibility}
                     onChange={(e) =>
@@ -272,9 +282,9 @@ export default function DashboardPage() {
                     Private encrypts locally before storing. Public saves
                     plaintext on-chain without personal identifiers.
                   </p>
-              </div>
+                </div>
 
-              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3">
                   <Button
                     type="button"
                     onClick={onSubmit}
@@ -282,13 +292,13 @@ export default function DashboardPage() {
                     className="rounded-xl"
                   >
                     {submitting ? "Preparing..." : "Publish"}
-                </Button>
+                  </Button>
                   {!canSubmit && (
                     <span className="text-sm">
                       Connect, write a message, and pick an emoji to enable.
                     </span>
                   )}
-              </div>
+                </div>
 
                 {error && (
                   <p role="status" className="text-sm text-red-600">
@@ -300,7 +310,7 @@ export default function DashboardPage() {
                     {info}
                   </p>
                 )}
-            </CardContent>
+              </CardContent>
             </div>
           </Card>
 
@@ -314,8 +324,8 @@ export default function DashboardPage() {
               }}
             >
               <CardHeader className="pb-2">
-              <CardTitle className="text-lg">Pick a mood</CardTitle>
-            </CardHeader>
+                <CardTitle className="text-lg">Pick a mood</CardTitle>
+              </CardHeader>
               <CardContent>
                 <div
                   role="grid"
@@ -333,33 +343,33 @@ export default function DashboardPage() {
                         aria-pressed={selected}
                         aria-label={label}
                         title={label}
-                      className={[
-                        "inline-flex items-center justify-center aspect-square w-full max-w-14 rounded-xl border text-2xl transition",
-                        "backdrop-blur-sm bg-white/10 border-white/20 ring-1 ring-black/10",
+                        className={[
+                          "inline-flex items-center justify-center aspect-square w-full max-w-14 rounded-xl border text-2xl transition",
+                          "backdrop-blur-sm bg-white/10 border-white/20 ring-1 ring-black/10",
                           selected
                             ? "outline-none ring-2 ring-blue-500"
                             : "hover:bg-white/20",
-                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500",
-                      ].join(" ")}
-                    >
-                      {e}
-                    </button>
-                  );
-                })}
-              </div>
-              <div className="mt-3 min-h-[1.25rem]">
-                {emoji ? (
+                          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500",
+                        ].join(" ")}
+                      >
+                        {e}
+                      </button>
+                    );
+                  })}
+                </div>
+                <div className="mt-3 min-h-[1.25rem]">
+                  {emoji ? (
                     <p className="text-sm">
                       Selected:{" "}
                       <span className="text-base">
                         {emoji} {EMOJI_LABELS[emoji]}
                       </span>
                     </p>
-                ) : (
-                  <p className="text-sm">Nothing selected yet.</p>
-                )}
-              </div>
-            </CardContent>
+                  ) : (
+                    <p className="text-sm">Nothing selected yet.</p>
+                  )}
+                </div>
+              </CardContent>
             </div>
           </Card>
         </div>
