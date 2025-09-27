@@ -10,8 +10,8 @@ module pacient::pacient;
 module pacient::pacient {
     use sui::object::{Self, UID};
     use sui::tx_context::{Self, TxContext};
-    use sui::transfer;
     use std::string::{Self, String};
+    use sui::event::{Self};
 
     public struct Note has key {
         id: UID,
@@ -19,6 +19,14 @@ module pacient::pacient {
         content: String,
         timestamp_ms: u64,
     }
+
+    public struct NoteEvent has copy, drop {
+        // informations needed to be shown in the frontend
+
+        // -> indexer waiting for event (complexity)
+        // 
+    }
+
 
     public entry fun post(content: String, ctx: &mut TxContext) {
         let note = Note {
@@ -28,5 +36,11 @@ module pacient::pacient {
             timestamp_ms: tx_context::epoch_timestamp_ms(ctx),
         };
         transfer::transfer(note, tx_context::sender(ctx));
+
+        let noteEvent = NoteEvent {
+            // 
+        };
+        event::emit(noteEvent)
+
     }
 }
