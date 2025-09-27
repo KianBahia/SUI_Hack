@@ -1,3 +1,12 @@
+
+# IMPORTANT NOTES
+
+before start:
+```bash
+pnpm add @mysten/sui.js
+```
+
+
 # Sui dApp Starter Template
 
 This dApp was created using `@mysten/create-dapp` that sets up a basic React
