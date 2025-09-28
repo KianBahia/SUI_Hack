@@ -4,6 +4,7 @@
 before start:
 ```bash
 pnpm add @mysten/sui.js
+pnpm add @mysten/seal
 ```
 
 
