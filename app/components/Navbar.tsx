@@ -49,7 +49,7 @@ export default function Navbar() {
                   </NavigationMenuLink>
                 </NavigationMenuItem>
 
-                {/* Posts link */}
+                {/* New Post link */}
                 <NavigationMenuItem>
                   <NavigationMenuLink asChild>
                     <Link
@@ -61,7 +61,7 @@ export default function Navbar() {
                         }) + " px-3 py-1.5 text-gray-900"
                       }
                     >
-                      Posts
+                      New Post
                     </Link>
                   </NavigationMenuLink>
                 </NavigationMenuItem>
@@ -78,7 +78,37 @@ export default function Navbar() {
                         }) + " px-3 py-1.5 text-gray-900"
                       }
                     >
-                      Community
+                      Feed
+                    </Link>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+                <NavigationMenuItem>
+                  <NavigationMenuLink asChild>
+                    <Link
+                      href="/my-posts"
+                      className={
+                        buttonVariants({
+                          variant: "glass",
+                          size: "sm",
+                        }) + " px-3 py-1.5 text-gray-900"
+                      }
+                    >
+                      My Posts
+                    </Link>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+                <NavigationMenuItem>
+                  <NavigationMenuLink asChild>
+                    <Link
+                      href="/doctor-zone"
+                      className={
+                        buttonVariants({
+                          variant: "glass",
+                          size: "sm",
+                        }) + " px-3 py-1.5 text-gray-900"
+                      }
+                    >
+                      Doctor Zone
                     </Link>
                   </NavigationMenuLink>
                 </NavigationMenuItem>
