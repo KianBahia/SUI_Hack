@@ -24,7 +24,7 @@ export default function AboutPage() {
       <div className="relative z-10">
         <header className="mb-6">
           <h1 className="text-3xl font-bold tracking-tight text-black">
-            About Feelings
+            About Healix
           </h1>
           <p className="mt-2 text-sm text-gray-800">
             Learn more about this project, its purpose, and how it works.
@@ -33,11 +33,11 @@ export default function AboutPage() {
 
         <Card className="bg-white/10 backdrop-blur-md border border-white/20 shadow-xl p-6 rounded-2xl">
           <CardHeader>
-            <CardTitle className="text-black">What is Feelings?</CardTitle>
+            <CardTitle className="text-black">What is Healix?</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4 text-gray-900">
             <p>
-              Feelings is a simple platform that allows users to track their
+              Healix is a simple platform that allows users to track their
               emotions privately using blockchain technology. Connect your
               wallet to post your moods and share them publicly or keep them
               encrypted.
@@ -58,7 +58,7 @@ export default function AboutPage() {
               <li>Connect your wallet using the button in the navbar.</li>
               <li>Post your current mood with a short message and emoji.</li>
               <li>Choose whether your entry is public or private.</li>
-              <li>View your past entries and interact with the community.</li>
+              <li>View and interact with the community.</li>
             </ul>
           </CardContent>
         </Card>

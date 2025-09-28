@@ -43,7 +43,7 @@ export default function Navbar() {
                         className="transition-transform duration-200"
                       />
                       <span className="transition-colors duration-200 hover:text-[#88d3ff]">
-                        Feelings
+                        Healix
                       </span>
                     </Link>
                   </NavigationMenuLink>
