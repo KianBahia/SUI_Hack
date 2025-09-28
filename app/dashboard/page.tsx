@@ -35,9 +35,13 @@ const SERVER_OBJECT_IDS = [
 const ALLOWLIST_ID = "0x5886c514ca8013105ce2ab1599c76bfef601942428fe474e056c5320c70344b8";
 
 "-------------------------------------------------------"
+
+//HARDCODED database/Note objects managment
+
 //FIXME this needs to. be linked to the current(last) PackageID!
-const PACKAGE_ID =
-  "0xa68d4253a03fb858b97ca8b0e0cb6383d2394a549a9b3cf9b1bbb7f1a1b936ae"; // Replace with your actual package id
+const PACKAGE_ID = "0x72820a8a2bfc96ac7dadf1ee4f64dd2706078837ff72f57d25b0eb1e5860bb54"; // Replace with your actual package id
+const DATABASE_OBJECT_ID = "0x3c8d988415c83935f3f015da30716c331b4226acc3643d94bbfc9d66bbcab310"
+const INITAL_SHARDVERSION = 349180619
 
 type Visibility = "public" | "private";
 
@@ -209,6 +213,9 @@ export default function DashboardPage() {
               });
             }
 
+            //define the objectID outside to keep it out of the scope
+            let createdNoteId: string | null = null;
+
             //print the object ID #TODO add objectID to. an array #TODO2 create different arrays based on emojy?
             if (result.effects?.created?.length) {
               result.effects.created.forEach((created, idx) => {
@@ -216,14 +223,38 @@ export default function DashboardPage() {
                 console.log(`Created object #${idx + 1}:`, objectId); //log the objectID to console //FIXME REMOVE THIS PRIVACY
                 addObjectId(objectId)
 
+                if (!createdNoteId) createdNoteId = objectId;
+
                 //check list of ObjectIDs
                 console.log("[DEBUG] Current objectIds array after add:", [
                   ...objectIds,
                   objectId,
                 ]);
-
               });
             }
+
+            // 2️⃣ Now add the new Note to the Database (second transaction)
+            if (createdNoteId) {
+              const addNoteTxb = new TransactionBlock();
+              addNoteTxb.moveCall({
+                target: `${PACKAGE_ID}::database::add_note`,
+                arguments: [
+                  addNoteTxb.sharedObjectRef({
+                    objectId: DATABASE_OBJECT_ID,       // your shared Database object ID
+                    initialSharedVersion: INITAL_SHARDVERSION,
+                    mutable: true,
+                  }),
+                  addNoteTxb.pure(account.address, "address"),  // author
+                  addNoteTxb.object(createdNoteId),             // Note object (ID type)
+                ],
+              }); 
+
+            const addNoteTx = Transaction.from(addNoteTxb.serialize());
+            await signAndExecuteTransactionBlock({ transaction: addNoteTx });
+
+            console.log("✅ Note added to Database!");
+            }
+
 
             console.log(
               "Transaction successful with digest:",
