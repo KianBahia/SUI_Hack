@@ -16,7 +16,7 @@ export default function RootLayout({
         <meta charSet="UTF-8" />
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Sui dApp Starter</title>
+        <title>Healix</title>
       </head>
       {/* Ensure light background and readable text */}
       <body className="bg-white text-gray-900 antialiased">
