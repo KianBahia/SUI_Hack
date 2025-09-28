@@ -20,12 +20,6 @@ module pacient::pacient {
         timestamp_ms: u64,
     }
 
-    public struct NoteEvent has copy, drop {
-        // informations needed to be shown in the frontend
-
-        // -> indexer waiting for event (complexity)
-        // 
-    }
 
 
     public entry fun post(content: String, ctx: &mut TxContext) {
@@ -37,10 +31,6 @@ module pacient::pacient {
         };
         transfer::transfer(note, tx_context::sender(ctx));
 
-        let noteEvent = NoteEvent {
-            // 
-        };
-        event::emit(noteEvent)
 
     }
 }
