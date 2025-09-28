@@ -42,6 +42,8 @@ public fun create_allowlist(name: String, ctx: &mut TxContext): Cap {
         allowlist_id: object::id(&allowlist),
     };
     transfer::share_object(allowlist);
+    //transfer::transfer(note, tx_context::sender(ctx));
+
     cap
 }
 

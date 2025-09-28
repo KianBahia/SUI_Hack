@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import {
   useCurrentAccount,
   ConnectButton,
+  useSignPersonalMessage,
   useSignAndExecuteTransaction,
   useSuiClient,
 } from "@mysten/dapp-kit";
@@ -15,7 +16,25 @@ import { Transaction } from "@mysten/sui/transactions";
 import WaveBackground from "../components/Background";
 import { useObjectIds } from "@/components/data/ObjectIdContext";
 import { ObjectID } from "node_modules/@mysten/sui/dist/esm/transactions/data/internal";
+import { SuiClient, getFullnodeUrl } from "@mysten/sui/client";
+import { SealClient, EncryptedObject, SessionKey } from "@mysten/seal";
+import { fromHex, toHex } from '@mysten/sui/utils';
+import { Ed25519Keypair } from '@mysten/sui/keypairs/ed25519';
 
+// ------ATRIBUTES FROM ADRI AND LLUC (BACKEND)
+
+const FULLNODE = getFullnodeUrl("testnet");
+
+// These are our verified key-server object IDs for your env. DON'T MODIFY IT
+const SERVER_OBJECT_IDS = [
+  "0x73d05d62c18d9374e3ea529e8e0ed6161da1a141a94d3f76ae3fe4e99356db75",
+  "0xf5d14a81a982144ae441cd7d64b09027f116a468bd36e7eca494f750591623c8",
+];
+
+// Harcoded allowlist_id.
+const ALLOWLIST_ID = "0x5886c514ca8013105ce2ab1599c76bfef601942428fe474e056c5320c70344b8";
+
+"-------------------------------------------------------"
 //FIXME this needs to. be linked to the current(last) PackageID!
 const PACKAGE_ID =
   "0xa68d4253a03fb858b97ca8b0e0cb6383d2394a549a9b3cf9b1bbb7f1a1b936ae"; // Replace with your actual package id
@@ -65,7 +84,6 @@ export default function DashboardPage() {
     useSignAndExecuteTransaction();
   const [mounted, setMounted] = useState(false);
 
-  const suiClient = useSuiClient();
   useEffect(() => setMounted(true), []);
   useEffect(() => {
     if (mounted && !account) window.location.replace("/");
@@ -103,13 +121,59 @@ export default function DashboardPage() {
     try {
       setSubmitting(true);
 
-      // 1. Create a new TransactionBlock
-      const txb = new TransactionBlock();
+      //----Seal Steps----
 
+      // In order to encrypt the messages, we are going to create a SealClient
+
+      const suiClient = new SuiClient({ url: FULLNODE });
+
+      const client = new SealClient({
+        suiClient,
+        serverConfigs: SERVER_OBJECT_IDS.map((objectId) => ({ objectId, weight: 1 })),
+        verifyKeyServers: false, // set true at startup if you want URL→ID verification
+      });
+
+      let encryptedBytes_aux = null;
+
+      if(visibility === "private"){
+        // We will need first our data encoded
+        const data = new TextEncoder().encode(body);
+
+        // Identity bytes (no package prefix). Here we use the patient object id bytes.
+      
+        const nonce = crypto.getRandomValues(new Uint8Array(5));
+        const policyObjectBytes = fromHex(ALLOWLIST_ID)
+        const id = toHex(new Uint8Array([...policyObjectBytes, ...nonce]));
+        console.log("Identity (hex):", id);
+
+        let attempts = 0;
+        
+        // We proceed now with the encryption
+        while (attempts < 100) {
+          try {
+            const { encryptedObject: encryptedBytes, key: backupKey } = await client.encrypt({
+              threshold: 2,                         // need 1 share to decryptUser
+              packageId: PACKAGE_ID,
+              id: id,                                   // vector<u8> identity
+              data,
+            });
+            encryptedBytes_aux = encryptedBytes
+            break;
+          } catch (error) {
+            console.log(`Encryption attempt ${attempts + 1} failed:`, error);
+            attempts++;
+          }
+        }
+      }
+
+
+        // 1. Create a new TransactionBlock
+      const txb = new TransactionBlock();
+    
       // 2. Combine your data into a single JSON string to pass to the smart contract
       const contentString = JSON.stringify({
         emoji: emoji,
-        message: body,
+        message: encryptedBytes_aux ? encryptedBytes_aux : body,
         visibility: visibility,
       });
 
