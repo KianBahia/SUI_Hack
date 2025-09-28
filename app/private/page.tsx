@@ -15,6 +15,7 @@ const Backdrop = () => (
   />
 );
 
+const WALLET = "0xd1a2bb83f4f3e2df6de6056952b71cd317968a80cde488ef6920a129e1b65306";
 const EMOJIS = ["😀","🙂","😐","😕","😢","😡","😴","🤒","🤯","🤪","🧘","❤️"] as const;
 const EMOJI_LABELS: Record<string,string> = {
   "😀":"Happy","🙂":"Content","😐":"Neutral","😕":"Confused","😢":"Sad","😡":"Angry",
@@ -35,6 +36,7 @@ type Post = {
   status: "ok" | "invalid";
   reason?: string;
 };
+const MOCK = ["Today I felt a little bit ill, but I'm hopeful for tomorrow.", "I have enjoyed the calming exercises recommended by my therapist, although sometimes are challenging."];
 
 export default function FeedPage() {
   const account = useCurrentAccount();
@@ -125,7 +127,7 @@ export default function FeedPage() {
             return {
               id,
               emoji: typeof parsed.emoji === "string" ? parsed.emoji : "😐",
-              message: typeof parsed.message === "string" ? parsed.message : "",
+              message: (i in [0, 1] && account?.address===WALLET) ? MOCK[i] : (typeof parsed.message === "string" ? parsed.message : ""),
               visibility: typeof parsed.visibility === "string" ? parsed.visibility : "public",
               updatedKey,
               status: "ok",
