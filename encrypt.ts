@@ -5,11 +5,7 @@ import { Ed25519Keypair } from '@mysten/sui/keypairs/ed25519';
 import { Transaction } from '@mysten/sui/transactions';
 import { fromHEX } from '@mysten/sui/utils';
 
-import { webcrypto } from "crypto";
 
-if (!globalThis.crypto) {
-  (globalThis as any).crypto = webcrypto;
-}
 
 const FULLNODE = getFullnodeUrl("testnet");
 
