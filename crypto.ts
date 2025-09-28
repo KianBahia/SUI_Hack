@@ -67,7 +67,7 @@ async function main() {
     const message = sessionKey.getPersonalMessage();
     const { signature } = await keypair.signPersonalMessage(message); // User confirms in wallet
     sessionKey.setPersonalMessageSignature(signature); // Initialization complete
-
+    
     // Create the Transaction for evaluating the seal_approve function.
     const tx = new Transaction();
     tx.moveCall({
