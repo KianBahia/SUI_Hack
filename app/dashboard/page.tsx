@@ -372,7 +372,7 @@ export default function DashboardPage() {
                     id="message-hint"
                     className="mt-1 flex justify-between text-xs"
                   >
-                    <span>Limit for publishing: 500. Hard cap 600.</span>
+                    <span>Limit for publishing: 500</span>
                     <span aria-live="polite">{messageChars}/500</span>
                   </div>
                 </div>
@@ -393,7 +393,7 @@ export default function DashboardPage() {
                     className="mt-2 w-full rounded-xl border border-grey/40 bg-white/5 p-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 backdrop-blur-sm"
                   >
                     <option value="private">Private (encrypted)</option>
-                    <option value="public">Public (on-chain, anonymous)</option>
+                    <option value="public">Public (on-chain, pseudonymous)</option>
                   </select>
                   <p className="mt-2 text-xs">
                     Private encrypts locally before storing. Public saves
