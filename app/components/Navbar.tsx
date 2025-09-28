@@ -83,6 +83,23 @@ export default function Navbar() {
                   </NavigationMenuLink>
                 </NavigationMenuItem>
 
+                {/* NEW: Private link */}
+                <NavigationMenuItem>
+                  <NavigationMenuLink asChild>
+                    <Link
+                      href="/private"
+                      className={
+                        buttonVariants({
+                          variant: "glass",
+                          size: "sm",
+                        }) + " px-3 py-1.5 text-gray-900"
+                      }
+                    >
+                      Private
+                    </Link>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+
                 {/* Manage Therapists */}
                 <NavigationMenuItem>
                   <NavigationMenuLink asChild>
