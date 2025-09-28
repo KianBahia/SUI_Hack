@@ -23,11 +23,8 @@ const EMOJI_LABELS: Record<string,string> = {
 
 const client = new SuiClient({ url: getFullnodeUrl("testnet") });
 
-// Ajoutez jusqu’à 10 IDs ici
-const OBJECT_IDS: string[] = [
-  "0xf89673a611d38f8ed38441106ac81c9339f109d420f93a3747676c5a6c3d96ea",
-  "0xe74645f245a1151343c6c76296cea7172e8dd66e02218b8e6fa9e639069f7353",
-];
+// HARDCODED
+const DATABASE_OBJECT_ID = "0x3c8d988415c83935f3f015da30716c331b4226acc3643d94bbfc9d66bbcab310";
 
 type Post = {
   id: string;
@@ -50,76 +47,102 @@ export default function FeedPage() {
     setMounted(true);
 
     const fetchPosts = async () => {
-      const results = await Promise.allSettled(
-        OBJECT_IDS.map((id) =>
-          client.getObject({ id, options: { showContent: true } })
-        )
-      );
+      try {
+        // 1. Fetch the Database object
+        const dbRes = await client.getObject({
+          id: DATABASE_OBJECT_ID,
+          options: { showContent: true },
+        });
 
-      const next: Post[] = results.map((res, i) => {
-        const id = OBJECT_IDS[i];
-
-        if (res.status !== "fulfilled") {
-          console.warn("getObject failed", id, res.reason);
-          return {
-            id, emoji: "😐", message: "(indisponible)",
-            visibility: "public", updatedKey: 0, status: "invalid",
-            reason: "fetch_failed",
-          };
-        }
-
-        const obj = res.value;
-        const content = obj.data?.content as any;
-
+        const content = dbRes.data?.content as any;
         if (!content || content.dataType !== "moveObject") {
-          console.warn("no moveObject content", id, obj);
-          return {
-            id, emoji: "😐", message: "(contenu manquant)",
-            visibility: "public", updatedKey: Number(obj.data?.version ?? 0),
-            status: "invalid", reason: "no_content",
-          };
+          console.warn("Database has no moveObject content");
+          return;
         }
 
-        const fields = content.fields as { content?: string };
-        if (!fields?.content) {
-          console.warn("no fields.content", id, content);
-          return {
-            id, emoji: "😐", message: "(champ content absent)",
-            visibility: "public", updatedKey: Number(obj.data?.version ?? 0),
-            status: "invalid", reason: "no_fields_content",
-          };
+        const notes: any[] = content.fields?.notes || [];
+        if (!Array.isArray(notes)) {
+          console.warn("Database.notes is not an array", notes);
+          return;
         }
 
-        try {
-          const parsed = JSON.parse(fields.content);
-          const ts = parsed.timestamp != null ? Number(parsed.timestamp) : undefined;
-          const versionNum = Number(obj.data?.version ?? 0);
-          const updatedKey = Number.isFinite(ts) ? ts! : versionNum;
+        // 2. Take last 10 note_ids (newest last (maybe expand to have smiley selection))
+        const OBJECT_IDS = notes.slice(-10).map((n) => n.fields.note_id);
 
-          return {
-            id,
-            emoji: typeof parsed.emoji === "string" ? parsed.emoji : "😐",
-            message: typeof parsed.message === "string" ? parsed.message : "",
-            visibility: typeof parsed.visibility === "string" ? parsed.visibility : "public",
-            updatedKey,
-            status: "ok",
-          };
-        } catch (e) {
-          console.warn("invalid JSON in fields.content", id, fields.content, e);
-          return {
-            id, emoji: "😐", message: "(JSON invalide)",
-            visibility: "public", updatedKey: Number(obj.data?.version ?? 0),
-            status: "invalid", reason: "invalid_json",
-          };
-        }
-      });
+        // 3. Original fetch logic stays the same
+        const results = await Promise.allSettled(
+          OBJECT_IDS.map((id) =>
+            client.getObject({ id, options: { showContent: true } })
+          )
+        );
 
-      // Trier récent → ancien, dédupliquer par id, garder 10
-      const map = new Map<string, Post>();
-      next
-        .sort((a, b) => b.updatedKey - a.updatedKey)
-        .forEach((p) => { if (!map.has(p.id)) map.set(p.id, p); });
-      setPosts(Array.from(map.values()).slice(0, 10));
+        const next: Post[] = results.map((res, i) => {
+          const id = OBJECT_IDS[i];
+
+          if (res.status !== "fulfilled") {
+            console.warn("getObject failed", id, res.reason);
+            return {
+              id, emoji: "😐", message: "(indisponible)",
+              visibility: "public", updatedKey: 0, status: "invalid",
+              reason: "fetch_failed",
+            };
+          }
+
+          const obj = res.value;
+          const content = obj.data?.content as any;
+
+          if (!content || content.dataType !== "moveObject") {
+            console.warn("no moveObject content", id, obj);
+            return {
+              id, emoji: "😐", message: "(contenu manquant)",
+              visibility: "public", updatedKey: Number(obj.data?.version ?? 0),
+              status: "invalid", reason: "no_content",
+            };
+          }
+
+          const fields = content.fields as { content?: string };
+          if (!fields?.content) {
+            console.warn("no fields.content", id, content);
+            return {
+              id, emoji: "😐", message: "(champ content absent)",
+              visibility: "public", updatedKey: Number(obj.data?.version ?? 0),
+              status: "invalid", reason: "no_fields_content",
+            };
+          }
+
+          try {
+            const parsed = JSON.parse(fields.content);
+            const ts = parsed.timestamp != null ? Number(parsed.timestamp) : undefined;
+            const versionNum = Number(obj.data?.version ?? 0);
+            const updatedKey = Number.isFinite(ts) ? ts! : versionNum;
+
+            return {
+              id,
+              emoji: typeof parsed.emoji === "string" ? parsed.emoji : "😐",
+              message: typeof parsed.message === "string" ? parsed.message : "",
+              visibility: typeof parsed.visibility === "string" ? parsed.visibility : "public",
+              updatedKey,
+              status: "ok",
+            };
+          } catch (e) {
+            console.warn("invalid JSON in fields.content", id, fields.content, e);
+            return {
+              id, emoji: "😐", message: "(JSON invalide)",
+              visibility: "public", updatedKey: Number(obj.data?.version ?? 0),
+              status: "invalid", reason: "invalid_json",
+            };
+          }
+        });
+
+        // Trier récent → ancien, dédupliquer par id, garder 10
+        const map = new Map<string, Post>();
+        next
+          .sort((a, b) => b.updatedKey - a.updatedKey)
+          .forEach((p) => { if (!map.has(p.id)) map.set(p.id, p); });
+        setPosts(Array.from(map.values()).slice(0, 10));
+      } catch (err) {
+        console.error("Failed to fetch database or notes:", err);
+      }
     };
 
     fetchPosts();
