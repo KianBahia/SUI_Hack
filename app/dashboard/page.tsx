@@ -196,7 +196,7 @@ export default function DashboardPage() {
           transaction: tx,
         },
         {
-          //cLL  a hook with result.event that update the frontend to show the messagess
+          // hook with result.event that update the frontend to show the messagess
           onSuccess: async (tx) => {
             const result = await suiClient.waitForTransaction({
               digest: tx.digest,
@@ -233,7 +233,7 @@ export default function DashboardPage() {
               });
             }
 
-            // 2️⃣ Now add the new Note to the Database (second transaction)
+            // Now add the new Note to the Database (second transaction) (this nested approach is suboptimal but for the MVP provides a clear function distinctions)
             if (createdNoteId) {
               const addNoteTxb = new TransactionBlock();
               addNoteTxb.moveCall({
