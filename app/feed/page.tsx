@@ -116,6 +116,12 @@ export default function FeedPage() {
             const versionNum = Number(obj.data?.version ?? 0);
             const updatedKey = Number.isFinite(ts) ? ts! : versionNum;
 
+            //skip non-public ones
+            if (parsed.visibility !== "public") {
+              console.log("Skipping private post:", id);
+              return null; // mark for removal
+            }
+
             return {
               id,
               emoji: typeof parsed.emoji === "string" ? parsed.emoji : "😐",
@@ -132,7 +138,7 @@ export default function FeedPage() {
               status: "invalid", reason: "invalid_json",
             };
           }
-        });
+        }).filter((p): p is Post => p !== null); //remove the null entries (marked for removal)
 
         // Trier récent → ancien, dédupliquer par id, garder 10
         const map = new Map<string, Post>();
