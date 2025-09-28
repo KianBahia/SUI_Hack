@@ -4,163 +4,126 @@ import { useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Transaction } from "@mysten/sui/transactions";
-import { fromHex, normalizeSuiAddress } from "@mysten/sui/utils";
+import { normalizeSuiAddress } from "@mysten/sui/utils";
 import {
   useCurrentAccount,
   useSignAndExecuteTransaction,
 } from "@mysten/dapp-kit";
 
-// Glassmorphism style (unchanged)
+// Same UI style
 const glassClasses =
   "rounded-2xl border border-white/20 bg-white/10 shadow-xl " +
   "backdrop-blur-md supports-[backdrop-filter:blur(0px)]:bg-white/10";
 
-// 🔒 Hardcoded on-chain IDs you provided
-const ALLOWLIST_ID =
-  "0x5886c514ca8013105ce2ab1599c76bfef601942428fe474e056c5320c70344b8";
+// ⚠️ Hardcoded on-chain IDs (you provided)
 const PACKAGE_ID =
   "0xc5ce2742cac46421b62028557f1d7aea8a4c50f651379a79afdf12cd88628807";
+const ALLOWLIST_ID =
+  "0x5886c514ca8013105ce2ab1599c76bfef601942428fe474e056c5320c70344b8";
+// Add your Cap object id here:
+const CAP_ID =
+  "0xd29777b7690990e455e3cf8254040bda9d9d093fe5dc58933efb96a7e6af7fa2"; // <-- put your real Cap object id (has key) here
 
-// Helpers
-function is0xHex(str: string) {
-  return /^0x[0-9a-fA-F]+$/.test(str.trim());
-}
-function ensureEvenHex(str: string) {
-  // Make sure hex length (without 0x) is even so it can be parsed to bytes
-  const body = str.replace(/^0x/, "");
-  return body.length % 2 === 0 ? str : ("0x" + "0" + body);
+// Simple address validator: 0x + 64 hex chars (normalized form)
+function looksLikeAddress(s: string) {
+  return /^0x[0-9a-fA-F]{64}$/.test(s.trim());
 }
 
 export default function ManageTherapistsPage() {
-  // Text inputs now carry the therapist PUBLIC KEY (0x-hex), not email.
-  const [addPubkey, setAddPubkey] = useState("");
-  const [removePubkey, setRemovePubkey] = useState("");
+  // Inputs now carry THERAPIST ADDRESS (not email, not pubkey)
+  const [addAddr, setAddAddr] = useState("");
+  const [removeAddr, setRemoveAddr] = useState("");
   const [info, setInfo] = useState<string | null>(null);
   const [busy, setBusy] = useState<"add" | "remove" | null>(null);
 
-  // Wallet hooks (the page expects you already wrapped the app with <SuiClientProvider> and <WalletProvider>)
+  // Wallet hooks
   const account = useCurrentAccount();
   const { mutateAsync: signAndExecute } = useSignAndExecuteTransaction();
 
-  // Basic UI validation & affordances
-  const canUseWallet = !!account;
   const addDisabled =
-    !addPubkey.trim() || !is0xHex(addPubkey) || !canUseWallet || busy !== null;
+    !addAddr.trim() || !looksLikeAddress(addAddr) || !account || busy !== null;
   const removeDisabled =
-    !removePubkey.trim() ||
-    !is0xHex(removePubkey) ||
-    !canUseWallet ||
+    !removeAddr.trim() ||
+    !looksLikeAddress(removeAddr) ||
+    !account ||
     busy !== null;
 
-  // Build a move call with a therapist public key as vector<u8>
-  function buildAddTx(pubkeyHex: string) {
+  // Build tx for allowlist::add(&mut Allowlist, &Cap, address)
+  function buildAddTx(addr: string) {
     const tx = new Transaction();
-    const safe = ensureEvenHex(pubkeyHex.trim());
-    const pubkeyBytes = fromHex(safe.replace(/^0x/, ""));
-
     tx.moveCall({
       target: `${normalizeSuiAddress(PACKAGE_ID)}::allowlist::add`,
       arguments: [
-        tx.object(normalizeSuiAddress(ALLOWLIST_ID)),
-        tx.pure.vector("u8", Array.from(pubkeyBytes)), // therapist public key as bytes
+        tx.object(normalizeSuiAddress(ALLOWLIST_ID)), // &mut Allowlist
+        tx.object(normalizeSuiAddress(CAP_ID)),       // &Cap
+        tx.pure.address(normalizeSuiAddress(addr)),   // address
       ],
     });
-
     return tx;
   }
 
-  function buildRemoveTx(pubkeyHex: string) {
+  // Build tx for allowlist::remove(&mut Allowlist, &Cap, address)
+  // (Assumed same signature; adjust if your Move remove differs)
+  function buildRemoveTx(addr: string) {
     const tx = new Transaction();
-    const safe = ensureEvenHex(pubkeyHex.trim());
-    const pubkeyBytes = fromHex(safe.replace(/^0x/, ""));
-
     tx.moveCall({
       target: `${normalizeSuiAddress(PACKAGE_ID)}::allowlist::remove`,
       arguments: [
-        tx.object(normalizeSuiAddress(ALLOWLIST_ID)),
-        tx.pure.vector("u8", Array.from(pubkeyBytes)), // therapist public key as bytes
+        tx.object(normalizeSuiAddress(ALLOWLIST_ID)), // &mut Allowlist
+        tx.object(normalizeSuiAddress(CAP_ID)),       // &Cap
+        tx.pure.address(normalizeSuiAddress(addr)),   // address
       ],
     });
-
     return tx;
   }
 
-  // Add therapist (public key)
+  // Add therapist (address)
   const handleAdd = async () => {
-    if (!account) {
-      setInfo("❌ Connect a wallet first.");
-      return;
-    }
-    if (!is0xHex(addPubkey)) {
-      setInfo("❌ Enter a 0x-prefixed public key hex.");
-      return;
-    }
+    if (!account) return setInfo("❌ Connect a wallet first.");
+    if (!looksLikeAddress(addAddr))
+      return setInfo("❌ Enter a valid Sui address (0x + 64 hex characters).");
 
     try {
       setBusy("add");
       setInfo(null);
 
-      const tx = buildAddTx(addPubkey);
-      const result = await signAndExecute(
-        {
-          transaction: tx,
-          chain: "sui:testnet",
-        },
-        {
-          // Optional callbacks
-          onSuccess: (res) => {
-            console.log("Executed add, effects digest:", res?.digest);
-          },
-        },
+      const tx = buildAddTx(addAddr);
+      const res = await signAndExecute(
+        { transaction: tx, chain: "sui:testnet" },
+        { onSuccess: (r) => console.log("add digest:", r.digest) },
       );
 
-      setInfo(
-        `Therapist public key added ✅ (digest: ${result.digest ?? "unknown"})`,
-      );
-      setAddPubkey("");
-    } catch (err: any) {
-      console.error("Add failed:", err);
-      setInfo(`❌ Error adding therapist: ${err?.message ?? err}`);
+      setInfo(`✅ Added therapist address. Digest: ${res.digest}`);
+      setAddAddr("");
+    } catch (e: any) {
+      console.error(e);
+      setInfo(`❌ Unable to add: ${e?.message ?? e}`);
     } finally {
       setBusy(null);
     }
   };
 
-  // Remove therapist (public key)
+  // Remove therapist (address)
   const handleRemove = async () => {
-    if (!account) {
-      setInfo("❌ Connect a wallet first.");
-      return;
-    }
-    if (!is0xHex(removePubkey)) {
-      setInfo("❌ Enter a 0x-prefixed public key hex.");
-      return;
-    }
+    if (!account) return setInfo("❌ Connect a wallet first.");
+    if (!looksLikeAddress(removeAddr))
+      return setInfo("❌ Enter a valid Sui address (0x + 64 hex characters).");
 
     try {
       setBusy("remove");
       setInfo(null);
 
-      const tx = buildRemoveTx(removePubkey);
-      const result = await signAndExecute(
-        {
-          transaction: tx,
-          chain: "sui:testnet",
-        },
-        {
-          onSuccess: (res) => {
-            console.log("Executed remove, effects digest:", res?.digest);
-          },
-        },
+      const tx = buildRemoveTx(removeAddr);
+      const res = await signAndExecute(
+        { transaction: tx, chain: "sui:testnet" },
+        { onSuccess: (r) => console.log("remove digest:", r.digest) },
       );
 
-      setInfo(
-        `Therapist public key removed ✅ (digest: ${result.digest ?? "unknown"})`,
-      );
-      setRemovePubkey("");
-    } catch (err: any) {
-      console.error("Remove failed:", err);
-      setInfo(`❌ Error removing therapist: ${err?.message ?? err}`);
+      setInfo(`✅ Removed therapist address. Digest: ${res.digest}`);
+      setRemoveAddr("");
+    } catch (e: any) {
+      console.error(e);
+      setInfo(`❌ Unable to remove: ${e?.message ?? e}`);
     } finally {
       setBusy(null);
     }
@@ -168,7 +131,7 @@ export default function ManageTherapistsPage() {
 
   return (
     <main className="relative mx-auto w-full max-w-4xl px-6 pt-28 pb-12">
-      {/* Background gradient */}
+      {/* Background */}
       <div
         aria-hidden
         className="fixed inset-0 -z-10"
@@ -180,14 +143,12 @@ export default function ManageTherapistsPage() {
       />
 
       <div className="relative z-10">
-        {/* Page header */}
         <header className="mb-6">
           <h1 className="text-2xl md:text-3xl font-semibold tracking-tight">
             Manage Therapists
           </h1>
           <p className="mt-1 text-sm">
-            Add or remove therapists from the on-chain private allowlist using
-            their <b>public key</b> (0x-hex).
+            Add or remove therapist <b>addresses</b> (0x…) to the on-chain private allowlist.
           </p>
         </header>
 
@@ -203,16 +164,16 @@ export default function ManageTherapistsPage() {
               <CardTitle className="text-lg">Manage</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              {/* Add therapist field */}
+              {/* Add therapist */}
               <div>
                 <label className="block text-sm font-medium">
-                  Add Therapist (public key 0x-hex)
+                  Add Therapist (address 0x…)
                 </label>
                 <div className="mt-2 grid grid-cols-[1fr_auto] gap-3">
                   <input
-                    value={addPubkey}
-                    onChange={(e) => setAddPubkey(e.target.value)}
-                    placeholder="0x<public key hex>"
+                    value={addAddr}
+                    onChange={(e) => setAddAddr(e.target.value)}
+                    placeholder="0x<64 hex chars>"
                     className="rounded-xl border border-grey/40 bg-white/5 p-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 backdrop-blur-sm"
                   />
                   <Button
@@ -225,23 +186,23 @@ export default function ManageTherapistsPage() {
                     +
                   </Button>
                 </div>
-                {!is0xHex(addPubkey) && addPubkey.trim() && (
+                {!looksLikeAddress(addAddr) && addAddr.trim() && (
                   <p className="mt-1 text-xs opacity-80">
-                    Enter a 0x-prefixed public key hex.
+                    Enter a valid Sui address (0x + 64 hex characters).
                   </p>
                 )}
               </div>
 
-              {/* Remove therapist field */}
+              {/* Remove therapist */}
               <div>
                 <label className="block text-sm font-medium">
-                  Remove Therapist (public key 0x-hex)
+                  Remove Therapist (address 0x…)
                 </label>
                 <div className="mt-2 grid grid-cols-[1fr_auto] gap-3">
                   <input
-                    value={removePubkey}
-                    onChange={(e) => setRemovePubkey(e.target.value)}
-                    placeholder="0x<public key hex>"
+                    value={removeAddr}
+                    onChange={(e) => setRemoveAddr(e.target.value)}
+                    placeholder="0x<64 hex chars>"
                     className="rounded-xl border border-grey/40 bg-white/5 p-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 backdrop-blur-sm"
                   />
                   <Button
@@ -254,14 +215,14 @@ export default function ManageTherapistsPage() {
                     -
                   </Button>
                 </div>
-                {!is0xHex(removePubkey) && removePubkey.trim() && (
+                {!looksLikeAddress(removeAddr) && removeAddr.trim() && (
                   <p className="mt-1 text-xs opacity-80">
-                    Enter a 0x-prefixed public key hex.
+                    Enter a valid Sui address (0x + 64 hex characters).
                   </p>
                 )}
               </div>
 
-              {/* Info message */}
+              {/* Status */}
               {info && <p className="text-sm text-green-700">{info}</p>}
             </CardContent>
           </div>
