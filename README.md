@@ -89,8 +89,7 @@
 - No sensitive data is stored off-chain.  
 - Wallet connection is required for signing messages and accessing encrypted content.
 
-- ## 🎨 Screenshots
-
+## 🎨 Screenshots
 ### Homepage
 ![Homepage](./screenshots/homePage.png)
 
