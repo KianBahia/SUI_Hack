@@ -88,3 +88,22 @@
 - Only allowlisted users can decrypt messages.  
 - No sensitive data is stored off-chain.  
 - Wallet connection is required for signing messages and accessing encrypted content.
+
+- ## 🎨 Screenshots
+
+### Homepage
+![Homepage](./screenshots/homePage.png)
+
+### About Page
+![About Page](./screenshots/aboutPage.png)
+
+### Post a Mood
+![Post Page](./screenshots/postPage.png)
+
+### Private Post (Encrypted)
+![Private Page](./screenshots/privatePage.png)
+
+## 🎥 Demo Video
+
+Check out a quick walkthrough of Healix in action:  
+[▶️ Watch on YouTube](https://www.youtube.com/watch?v=dAUoh2U_bx8)
